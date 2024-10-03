@@ -1,0 +1,244 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "vconcat": [
+    {
+      "width": 500,
+      "height": 400,
+      "title": {
+        "text": "International Migration into Australia (2022)",
+        "subtitle": "Net Flow of International Migrants per 10,000 population"
+      },
+      "projection": {
+        "type": "mercator"
+      },
+      "data": {
+        "url": "2australia-states.topojson.json",
+        "format": {
+          "type": "topojson",
+          "feature": "georef-australia-state@public"
+        }
+      },
+      "transform": [
+        {
+          "lookup": "properties.ste_iso3166_code",
+          "from": {
+            "data": {
+              "url": "cleaned.csv",
+              "name": "cleaned1"
+            },
+            "key": "state",
+            "fields": [
+              "year",
+              "population",
+              "netflow"
+            ]
+          }
+        },
+        {
+          "filter": "datum.year == 2022"
+        },
+        {
+          "calculate": "datum.netflow/datum.population * 10000",
+          "as": "normalized_netflow"
+        }
+      ],
+      "layer": [
+        {
+          "mark": {
+            "type": "geoshape"
+          },
+          "encoding": {
+            "color": {
+              "field": "normalized_netflow",
+              "type": "quantitative",
+              "scale": {
+                "scheme": "reds"
+              },
+              "legend": {
+                "title": "Net Flow of International Migrants",
+                "rowPadding": 4
+              }
+            },
+            "tooltip": [
+              {
+                "field": "properties.ste_name[0]",
+                "type": "nominal",
+                "title": "State"
+              },
+              {
+                "field": "normalized_netflow",
+                "type": "quantitative",
+                "title": "Net Flow of Migrants (per 10,000 population)",
+                "format": ".3"
+              }
+            ]
+          }
+        },
+        {
+          "mark": {
+            "type": "text"
+          },
+          "encoding": {
+            "longitude": {
+              "field": "properties.geo_point_2d.lon",
+              "type": "quantitative"
+            },
+            "latitude": {
+              "field": "properties.geo_point_2d.lat",
+              "type": "quantitative"
+            },
+            "text": {
+              "field": "properties.ste_iso3166_code",
+              "type": "nominal"
+            },
+            "tooltip": [
+              {
+                "field": "properties.ste_name[0]",
+                "type": "nominal",
+                "title": "State"
+              },
+              {
+                "field": "normalized_netflow",
+                "type": "quantitative",
+                "title": "Net Flow of Migrants (per 10,000 population)",
+                "format": ".3"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "data": {
+        "url": "cleaned.csv",
+        "name": "cleaned2"
+      },
+      "transform": [
+        {
+          "calculate": "(parseInt(datum.netflow)/datum.population)*10000",
+          "as": "netflow"
+        },
+        {
+          "filter": "datum.state != 'AUS'"
+        }
+      ],
+      "layer": [
+        {
+          "width": 500,
+          "height": 200,
+          "title": {
+            "text": "Netflow of International Migrants by State",
+            "subtitle": "Net Flow of Migrants (per 10,000 population)"
+          },
+          "selection": {
+            "state_highlight": {
+              "type": "multi",
+              "fields": [
+                "state"
+              ],
+              "bind": "legend"
+            }
+          },
+          "mark": "line",
+          "encoding": {
+            "x": {
+              "field": "year",
+              "type": "temporal"
+            },
+            "y": {
+              "field": "netflow",
+              "type": "quantitative"
+            },
+            "color": {
+              "field": "state"
+            },
+            "opacity": {
+              "condition": {
+                "selection": "state_highlight",
+                "value": 1
+              },
+              "value": 0.1
+            }
+          }
+        },
+        {
+          "mark": "point",
+          "encoding": {
+            "x": {
+              "field": "year",
+              "type": "temporal"
+            },
+            "y": {
+              "field": "netflow",
+              "type": "quantitative"
+            },
+            "color": {
+              "field": "state"
+            },
+            "opacity": {
+              "value": 0
+            },
+            "tooltip": [
+              {
+                "title": "Year",
+                "field": "year",
+                "type": "temporal",
+                "timeUnit": "year"
+              },
+              {
+                "title": "State",
+                "field": "state",
+                "type": "nominal"
+              },
+              {
+                "title": "Netflow",
+                "field": "netflow",
+                "type": "quantitative",
+                "format": ".0f"
+              }
+            ]
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {"year": "2020-01-01",
+            "text": "Covid Pandemic started...",
+          "y": 200}
+            ]
+          },
+          "layer": [
+          {"mark": "rule",
+          "encoding": {
+            "x": {
+              "field": "year",
+              "type": "temporal"
+            },
+            "color": {
+              "value": "red"
+            },
+            "size": {
+              "value": 2
+            }
+          }
+        },
+        {"mark":"text",
+        "encoding": {
+          "x": {"field": "year",
+        "type": "temporal"},
+        "y": {
+          "field": "y",
+          "type":"quantitative"
+        },
+        "text": {
+          "field": "text",
+          "type":"nominal"
+        }
+        }
+      }
+      ]
+        }
+      ]
+    }
+  ]
+}
