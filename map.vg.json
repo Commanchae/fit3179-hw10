@@ -166,11 +166,17 @@
           "encoding": {
             "x": {
               "field": "year",
-              "type": "temporal"
+              "type": "temporal",
+              "axis": {
+                "title": "Year"
+              }
             },
             "y": {
               "field": "netflow",
-              "type": "quantitative"
+              "type": "quantitative",
+              "axis": {
+                "title": "Netflow"
+              }
             },
             "color": {
               "field": "state"
